@@ -49,7 +49,21 @@ class MultipleLinearRegression:
                                        x_transposed_output)
         self._parameters = optimal_parameters
 
-    def predict(self, data: np.ndarray) -> np.ndarray:
+    def predict(self, data: pd.DataFrame) -> np.ndarray:
+        """
+        This function uses the parameters of the model
+        to predict the output using the input
+
+        Args:
+            observations: pandas Dataframe of input
+            data that is used to predict the output
+
+        Returns:
+            A numpy array of the output
+
+        Raises:
+            -
+        """
         base_weight = np.ndarray(shape=(len(data), 1))
         base_weight[:] = 1
         X = np.hstack((base_weight, data))

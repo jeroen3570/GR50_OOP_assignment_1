@@ -32,4 +32,7 @@ There are automated checks that verify that your submission is correct:
 ---
 
 ## Your report
+The class MultipleLinearRegression is set up with four different functions, of which one is called automatically when creating a new instance of the MultipleLinearRegression. This class uses encapsulation by having one private variable, called _parameters. This variable is private, as this should not be changed manually by the user. The user can get the parameters with the defined function **get_parameters()**. 
+The other two functions in this class are **train()** and **predict**. These functions are both public, as they need to be called by the user to make use of the class. \\
 
+The class RegressionPlotter is an independent class that contains four functions, of which one is called automatically when crating a new instance of the RegressionPlotter. This function stores the variables used across the three functions. All of these values are private, as they must not be found or manipulated manually by the user. The only public function in this class is the **plot()** function. This function decides whether the plot must be 3D or 2D, depending on how many features should be plotted. Based on that, it calls either **_plot_2D()** or **_plot_3D()**. These are both private functions, as they must only be called via the public **plot()** function.
