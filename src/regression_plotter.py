@@ -1,109 +1,144 @@
 import numpy as np
-import pandas as pd
 import os
-from sklearn.linear_model import LinearRegression
-
-class MultipleLinearRegression:
-    def __init__(self, default_intercept:float):
-        self._parameters = default_intercept
-
-    def train(self, observations:np.ndarray, target:np.ndarray) -> None:
-        '''
-        observations is a 2d numpy array of length n and width p (with n = number of observations and p = number of features)
-        target is a 1d numpy array of length n
-        '''
-
-        base_weight = np.ndarray(shape=(len(observations), 1))
-        base_weight[:] = 1
-        X = np.hstack((base_weight, observations))
-
-        x_transposed_product = np.matmul(X.transpose(), X)
-        x_transposed_output = np.matmul(X.transpose(), target)
-        optimal_parameters = np.matmul(np.linalg.inv(x_transposed_product), x_transposed_output)
-        self._parameters = optimal_parameters
-
-    def predict(self, data:np.ndarray) -> np.ndarray:
-        base_weight = np.ndarray(shape=(len(data), 1))
-        base_weight[:] = 1
-        X = np.hstack((base_weight, data))
-        return np.matmul(X, self._parameters)
-
-
-
-
-
-
-
-
-
-
-
-
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import multiple_linear_regression as mr
 
 
 class RegressionPlotter:
-    def __init__(self, input:pd.DataFrame, output:float, parameters:float, plot_features:list[int] =None) -> None:
-        self.input = np.array(input)
-        self.labels = input.columns
-        self.output = output
-        self.model_parameters = parameters
-        self.feature_array = None
+    def __init__(self, input: pd.DataFrame, model: mr.MultipleLinearRegression,
+                 plot_features: list[int] = None) -> None:
+        """
+        This function is called when creating a new RegressionPlotter instance.
+        It stores the input data, calculated output data from the model,
+        the model parameters and which features should be plotted
+
+        Args:
+            input: pandas dataframe of the input data with each feature
+            in one column.
+            model: MultipleLinearRegression instance.
+            plot_features: list of index values of features corresponding
+            to the input dataframe that should be plotted.
+
+        Returns:
+            None.
+
+        Raises:
+            -
+        """
+        self._input = np.array(input)
+        self._labels = input.columns
+        self._model_parameters = model.get_parameters()
+        self._output = model.predict(self._input)
+        self._plot_features = None
 
         if plot_features is None:
-            self.plot_features = np.arange(0, input.shape[1], 1)
+            self._plot_features = np.arange(0, input.shape[1], 1)
         else:
-            self.plot_features = plot_features
+            self._plot_features = plot_features
 
+    def _plot_2D(self) -> None:
+        """
+        This function creates (a series of) 2D plots to show the
+        output compared to the input.
 
-    def plot_2D(self) -> None:
-        print("2D")
-        pass
+        Args:
+            None.
 
-    def plot_3D(self) -> None:
+        Returns:
+            None.
+
+        Raises:
+            None.
+        """
+
+        number_of_columns = 3
+        number_of_rows = int(len(self._plot_features) // number_of_columns)
+        position = range(1, len(self._plot_features) + 1)
+
+        if (len(self._plot_features) % number_of_columns) != 0:
+            number_of_rows += 1
+
         fig = plt.figure()
-        ax = fig.add_subplot(projection='3d')
-        ax.set_xlabel(self.labels[self.plot_features[0]])
-        ax.set_ylabel(self.labels[self.plot_features[1]])
-        ax.set_zlabel('Output')
-        
-        x_data = self.input[:, self.plot_features[0]]
-        y_data = self.input[:, self.plot_features[1]]
-        z_data = self.output
+        for i in range(len(self._plot_features)):
+            ax = fig.add_subplot(number_of_rows, number_of_columns,
+                                 position[i])
+            ax.set_xlabel(self._labels[self._plot_features[i]])
+            ax.set_ylabel('Output')
+            x_data = self._input[:, self._plot_features[i]]
+            y_data = self._output
+            x_range = np.arange(min(x_data), max(x_data), 1)
+            x_param = self._model_parameters[1+self._plot_features[i]]
+            y_result = self._model_parameters[0] + x_param*x_range
 
-        ax.scatter(x_data, y_data, z_data)
+            ax.plot(y_result, color='r', label='Regression model')
+            ax.scatter(x_data, y_data, label='Data points')
+            ax.legend()
         plt.show()
 
-        """print("\nself.plot_features[0]:")
-        print(self.plot_features[0])
+    def _plot_3D(self) -> None:
+        """
+        This function creates one 3D plot of two input
+        features and one output value.
 
-        print("\nself.feature_array:")
-        print(self.input)
+        Args:
+            None.
 
-        print("\nx data: ")
-        print(x_data)
+        Returns:
+            None.
 
-        print("\ny data: ")
-        print(y_data)
+        Raises:
+            None.
+        """
+        fig = plt.figure()
+        ax = fig.add_subplot(projection='3d')
+        ax.set_xlabel(self._labels[self._plot_features[0]])
+        ax.set_ylabel(self._labels[self._plot_features[1]])
+        ax.set_zlabel('Output')
+        x_data = self._input[:, self._plot_features[0]]
+        y_data = self._input[:, self._plot_features[1]]
+        z_data = self._output
 
-        print("\nz data: ")
-        print(z_data) """
-
-
-        
+        base_param = self._model_parameters[0]
+        x_range = np.arange(min(x_data), max(x_data), 1)
+        y_range = np.arange(min(y_data), max(y_data), 1)
+        x_surface, y_surface = np.meshgrid(x_range, y_range)
+        x_param = self._model_parameters[1+self._plot_features[0]]
+        y_param = self._model_parameters[1+self._plot_features[1]]
+        result = base_param + x_param * x_surface + y_param * y_surface
+        ax.plot_surface(x_surface, y_surface, result, color='r',
+                        label='Regression model')
+        ax.scatter(x_data, y_data, z_data, label='Data points')
+        ax.legend()
+        plt.show()
 
     def plot(self) -> None:
-        #choose plot
+        """
+        This function creates scatter plots for each item
+        (is an index for a feature in the input) in the list
+        self._plot_features against the output.
+        In this plot, the regression model is also shown.
+        If there is only one index in the list, one 2D plot is created
+        based on the feature and the output. The model is shown as a line.
+        If there are two indices in the list, one 3D plot is created based on
+        the features and the output. The regression model is shown as a plane.
+        If there are more than two indices in the list, one 2D plot is created
+        for each feature and the output. The model is shown as a line.
 
-        if (len(self.plot_features)==2):
-            self.plot_3D()
+        Args:
+            None.
+
+        Returns:
+            None.
+
+        Raises:
+            None.
+        """
+
+        if (len(self._plot_features) == 2):
+            self._plot_3D()
         else:
-            self.plot_2D()
-
-        
-
+            self._plot_2D()
 
 
 if __name__ == "__main__":
@@ -111,24 +146,14 @@ if __name__ == "__main__":
     # from multiple linear regression #
     ###################################
     data = pd.read_csv(os.getcwd() + '/src/test data.csv',  delimiter=';')
-    features = data[["Humidity", "Wind Speed (km/h)", "Wind Bearing (degrees)", "Visibility (km)", "Pressure (millibars)"]]
+    features = data[["Humidity", "Wind Speed (km/h)", "Wind Bearing (degrees)",
+                     "Visibility (km)", "Pressure (millibars)"]]
     output = data['Temperature (C)']
 
-    model = MultipleLinearRegression(0)
+    model = mr.MultipleLinearRegression(0)
     model.train(features, output)
-    
-    res = model.predict(features)
-
     ###################################
     # from regression plotter         #
     ###################################
-    #a = np.array([[2, 3, 4],[5, 6,7]])
-
-    #b = np.array([1, 2])
-    rp = RegressionPlotter(features, res, model._parameters, [1, 3])
+    rp = RegressionPlotter(features, model, [1, 2, 3])
     rp.plot()
-
-
-    #print(rp.plot_features)
-
-    

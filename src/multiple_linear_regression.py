@@ -3,33 +3,88 @@ import pandas as pd
 import os
 from sklearn.linear_model import LinearRegression
 
+
 class MultipleLinearRegression:
-    def __init__(self, default_intercept:float):
+    def __init__(self, default_intercept: np.ndarray) -> None:
+        """
+        This function is called when creating a new MultipleLinearRegression
+        instance. It stores the model parameters.
+
+        Args:
+            default_intercept: numpy array of the default parameters of
+            the multiple linear regression model.
+
+        Returns:
+            None.
+
+        Raises:
+            -
+        """
         self._parameters = default_intercept
 
-    def train(self, observations:np.ndarray, target:np.ndarray) -> None:
-        '''
-        observations is a 2d numpy array of length n and width p (with n = number of observations and p = number of features)
-        target is a 1d numpy array of length n
-        '''
+    def train(self, observations: pd.DataFrame, target: np.ndarray) -> None:
+        """
+        This function is called when creating a new MultipleLinearRegression
+        instance. It stores the model parameters.
+
+        Args:
+            observations: pandas DataFrame of the input data
+                          with width p and length n.
+            target: numpy array of the requested
+                    output that the model should find.
+
+        Returns:
+            None.
+
+        Raises:
+            -
+        """
 
         base_weight = np.ndarray(shape=(len(observations), 1))
         base_weight[:] = 1
         X = np.hstack((base_weight, observations))
-        print(X)
-
         x_transposed_product = np.matmul(X.transpose(), X)
         x_transposed_output = np.matmul(X.transpose(), target)
-        optimal_parameters = np.matmul(np.linalg.inv(x_transposed_product), x_transposed_output)
+        optimal_parameters = np.matmul(np.linalg.inv(x_transposed_product),
+                                       x_transposed_output)
         self._parameters = optimal_parameters
 
-    def predict(self, data:np.ndarray) -> np.ndarray:
+    def predict(self, data: np.ndarray) -> np.ndarray:
         base_weight = np.ndarray(shape=(len(data), 1))
         base_weight[:] = 1
         X = np.hstack((base_weight, data))
         return np.matmul(X, self._parameters)
 
-def skTest(observations:np.ndarray, output:np.ndarray) -> None:
+    def get_parameters(self) -> np.ndarray:
+        """
+        This function returns the array of the model parameters
+
+        Args:
+            -
+
+        Returns:
+            numpy array of the model parameters.
+
+        Raises:
+            -
+        """
+        return self._parameters
+
+
+def skTest(observations: pd.DataFrame, output: np.ndarray) -> None:
+    """
+    This function calculates and prints the model parameters based on sklearn.
+
+    Args:
+        observations: numpy array of the input data with width p and length n.
+        target: numpy array of the requested output that the model should find.
+
+    Returns:
+        None.
+
+    Raises:
+        -
+    """
     mod = LinearRegression()
     mod.fit(observations, output)
     print("sklearn parameters:")
@@ -43,7 +98,8 @@ def skTest(observations:np.ndarray, output:np.ndarray) -> None:
 if __name__ == "__main__":
     data = pd.read_csv(os.getcwd() + '/src/test data.csv',  delimiter=';')
     print(data.columns)
-    features = data[["Humidity", "Wind Speed (km/h)", "Wind Bearing (degrees)", "Visibility (km)", "Pressure (millibars)"]]
+    features = data[["Humidity", "Wind Speed (km/h)", "Wind Bearing (degrees)",
+                     "Visibility (km)", "Pressure (millibars)"]]
     output = data['Temperature (C)']
 
     print("test with sklearn: \n")
@@ -55,8 +111,6 @@ if __name__ == "__main__":
 
     print("\nmodel parameters:")
     print(model._parameters)
-
-    
     res = model.predict(features)
     print("\naverage diff by model:")
     print(sum(abs(res - output))/len(res))
