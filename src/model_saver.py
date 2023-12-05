@@ -9,27 +9,30 @@ class ModelSaver:
 
         self._format = format
 
-    def save(self, model, file) -> None:
+    def save_parameters(self, model, file) -> None:
 
         parameters = model.get_parameters()
 
         if self._format == "csv":
-            with open(file, 'w') as file:
-                savetxt(file, parameters, delimiter=',')
+            with open(file, 'w') as csv_file:
+                savetxt(csv_file, parameters, delimiter=',')
 
         elif self._format == "json":
-            with open(file, 'w') as file:
-                json.dump(parameters, file)
+            parameters = parameters.tolist()
+            with open(file, 'w') as json_file:
+                json.dump(parameters, json_file)
 
-    def load(self, model, file) -> None:
-        parameters = []
+    def load_parameters(self, model, file) -> None:
         if self._format == "csv":
-            with open(file, 'r') as file:
-                reader = csv.reader(file)
+            parameters = []
+            with open(file, 'r') as csv_file:
+                reader = csv.reader(csv_file)
                 for row in reader:
                     parameters.append(row)
             np_array = np.array(parameters)
             model.set_parameters(np_array)
         elif self._format == "json":
-            with open(file, 'r') as file:
-                reader
+            with open(file, 'r') as json_file:
+                parameters = json.load(json_file)
+            np_array = np.array(parameters)
+            model.set_parameters(np_array)
