@@ -84,6 +84,21 @@ class MultipleLinearRegression:
         """
         return self._parameters
 
+    def set_parameters(self, parameters: np.ndarray) -> np.ndarray:
+        """
+        This function sets the model parameters
+
+        Args:
+            the new parameters
+
+        Returns:
+            -
+
+        Raises:
+            -
+        """
+        self._parameters = parameters
+
 
 def skTest(observations: pd.DataFrame, output: np.ndarray) -> None:
     """
