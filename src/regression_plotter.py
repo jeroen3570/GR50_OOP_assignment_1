@@ -1,5 +1,4 @@
 import numpy as np
-import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import multiple_linear_regression as mr
@@ -139,21 +138,3 @@ class RegressionPlotter:
             self._plot_3D()
         else:
             self._plot_2D()
-
-
-if __name__ == "__main__":
-    ###################################
-    # from multiple linear regression #
-    ###################################
-    data = pd.read_csv(os.getcwd() + '/src/test data.csv',  delimiter=';')
-    features = data[["Humidity", "Wind Speed (km/h)", "Wind Bearing (degrees)",
-                     "Visibility (km)", "Pressure (millibars)"]]
-    output = data['Temperature (C)']
-
-    model = mr.MultipleLinearRegression(0)
-    model.train(features, output)
-    ###################################
-    # from regression plotter         #
-    ###################################
-    rp = RegressionPlotter(features, model, [1, 2, 3])
-    rp.plot()

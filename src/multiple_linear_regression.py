@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import os
 from sklearn.linear_model import LinearRegression
 
 
@@ -122,24 +121,3 @@ def skTest(observations: pd.DataFrame, output: np.ndarray) -> None:
     pred = mod.predict(observations)
 
     print(sum(abs(pred - output))/len(pred))
-
-
-if __name__ == "__main__":
-    data = pd.read_csv(os.getcwd() + '/src/test data.csv',  delimiter=';')
-    print(data.columns)
-    features = data[["Humidity", "Wind Speed (km/h)", "Wind Bearing (degrees)",
-                     "Visibility (km)", "Pressure (millibars)"]]
-    output = data['Temperature (C)']
-
-    print("test with sklearn: \n")
-    skTest(features, output)
-
-    print("\n\n")
-    model = MultipleLinearRegression(0)
-    model.train(features, output)
-
-    print("\nmodel parameters:")
-    print(model._parameters)
-    res = model.predict(features)
-    print("\naverage diff by model:")
-    print(sum(abs(res - output))/len(res))
