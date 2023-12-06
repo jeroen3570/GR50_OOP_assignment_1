@@ -22,7 +22,7 @@ class ModelSaver:
 
         self._format = format
 
-    def save_parameters(self, model, file) -> None:
+    def save_parameters(self, model: any, file: str) -> None:
         """
         This function saves the parameters of a given model in a file of the
         format chosen by the user.
@@ -50,7 +50,7 @@ class ModelSaver:
             with open(file, 'w') as json_file:
                 json.dump(parameters, json_file)
 
-    def load_parameters(self, model, file) -> None:
+    def load_parameters(self, model: any, file: str) -> None:
         """
         This function loads parameters from a file and sets in in the given
         model
